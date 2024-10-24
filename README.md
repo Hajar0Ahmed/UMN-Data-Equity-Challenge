@@ -10,3 +10,7 @@ To access other details for the Data challenge view these documents:
 -https://docs.google.com/document/d/1EY9lZhuxm0IdFfN1dSID695Vxd-2hSNF/edit?usp=sharing&ouid=102928266230588415257&rtpof=true&sd=true
 
 -https://docs.google.com/document/d/1EeSi9hScCPE3psvHFEL1mKlEkPzgRZNZ/edit?usp=sharing&ouid=102928266230588415257&rtpof=true&sd=true
+
+PLAN:
+
+-https://docs.google.com/document/d/1Zb0F6KRY_dHl2FlZcUwi0qmRHYsAvlCYEM4ENrewsQQ/edit?usp=sharing
