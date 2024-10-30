@@ -1,30 +1,64 @@
 ---
-title: "Data Exploration"
+title: "ORDINAL LOGISTIC REGRESSION FOR PUBH DATA EQUITY CHALLENGE"
 author: "Hajar Ahmed"
-date: "2024-10-24"
+date: "2024-10-29"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+```{r include=FALSE}
+##
+dat <- read.csv("~/Desktop/Shapedata.csv")
+
+dat[!is.na(dat$Drinking_Level),]
+
+
+##download and import packages
+#install.packages("MASS")
+#install.packages("brant")
+#install.packages("car")
+
+library(MASS)
+library(brant)
+library(car)
 ```
 
-## R Markdown
+According to the CDC, the threshold for excessive drinking is different for both men and women. For a woman, 4 or more drinks constitutes excessive drinking, whereas for men that number is 5. For our response variable, we will classify respondants to the SHAPE questionnaire as non-drinker, a moderate drinker, and an excessive drinker. This gives use three levels to use in our ordinal logistic regression.
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+Explanatory variables we will be studying include...
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+citation: stats.oarc.ucla
+```{r}
+lapply(dat[, c("Categorized_Gender","Categorized_Sexuality","Income")], table)
 ```
 
-## Including Plots
+```{r}
 
-You can also embed plots, for example:
+dat$Drinking_Level <- factor(dat$Drinking_Level, levels = c("1", "2", "3"), ordered = TRUE)
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+m <- polr(Drinking_Level ~ Categorized_Gender + Categorized_Sexuality + Income, data = dat, Hess = TRUE)
+
+summary(m)
+```
+```{r}
+#multicollinearity
+vif(m)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+```{r}
+##proportional odds assumption
+#brant.test(m)
+#brant.test(m, global=FALSE, call=FALSE)
+
+brant::brant(m)
+#pval < .05 is a failure
+```
+```{r}
+#odds ratios
+#ex. means that for someone who is male is 1.2x that of other people
+exp(coef(m))
+```
+
+```{r}
+
+```
+
