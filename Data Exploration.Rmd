@@ -1,6 +1,6 @@
 ---
 title: "ORDINAL LOGISTIC REGRESSION FOR PUBH DATA EQUITY CHALLENGE"
-author: "Hajar Ahmed"
+author: "SHAPE TEAM"
 date: "2024-10-29"
 output: html_document
 ---
