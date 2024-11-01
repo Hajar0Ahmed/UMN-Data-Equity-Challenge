@@ -1,0 +1,99 @@
+---
+title: "ORDINAL LOGISTIC REGRESSION FOR PUBH DATA EQUITY CHALLENGE"
+author: "Hajar Ahmed"
+date: "2024-10-29"
+output: html_document
+---
+
+```{r include=FALSE}
+dat <- read.csv(file.choose())
+
+dat[!is.na(dat$Drinking_Level),]
+
+
+##download and import packages
+#install.packages("MASS")
+#install.packages("brant")
+#install.packages("car")
+#install.packages("VGAM")
+
+library(MASS)
+library(brant)
+library(car)
+library(VGAM)
+```
+
+According to the CDC, the threshold for excessive drinking is different for both men and women. For a woman, 4 or more drinks constitutes excessive drinking, whereas for men that number is 5. For our response variable, we will classify respondants to the SHAPE questionnaire as non-drinker, a moderate drinker, and an excessive drinker. This gives use three levels to use in our ordinal logistic regression.
+
+Explanatory variables we will be studying include...
+
+citation: stats.oarc.ucla
+```{r}
+lapply(dat[, c("Categorized_Gender","Categorized_Sexuality","Hundred_Cigs", "Safety","Impact","Isolation")], table)
+```
+
+```{r}
+#Model
+dat$Drinking_Level <- factor(dat$Drinking_Level, levels = c("1", "2", "3"), ordered = TRUE)
+
+#m <- polr(Drinking_Level ~ Categorized_Gender + Categorized_Sexuality + Safety+ Impact+Isolation, data = dat, Hess = TRUE)
+
+#summary(m)
+
+m<- vglm(Drinking_Level ~ Categorized_Gender + Categorized_Sexuality + Safety+ Impact+Isolation, family=cumulative(parallel=FALSE),data=dat)
+
+summary(m)
+
+```
+```{r}
+#multicollinearity
+vif(m)
+```
+
+```{r}
+##proportional odds assumption
+#brant.test(m)
+#brant.test(m, global=FALSE, call=FALSE)
+#brant::brant(m)
+#pval < .05 is a failure
+
+```
+```{r}
+#odds ratios
+#ex. means that for someone who is male is 1.2x that of other people
+exp(coef(m))
+
+
+#EXAMPLE:
+# A male with low alcholic tendencies (low risk) has a 
+```
+```{r}
+#Pvals and Conf int
+
+ctable <- coef(summary(m))
+
+p <- pnorm(abs(ctable[, "t value"]), lower.tail = FALSE) * 2
+
+ctable <- cbind(ctable, "p value" = p)
+
+ci <- confint(m)
+```
+
+
+
+```{r}
+#Plot predicted probabilities
+newdat <- data.frame(
+  Categorized_Gender = rep(0:1, each=200),
+  Categorized_Sexuality = rep(0:1, each=200)
+)
+
+newdat<- cbind(newdat,predict(m, newdat, type="probs"))
+
+lnewdat <- melt(newdat, id.vars = c("pared", "public", "gpa"),
+  variable.name = "Level", value.name="Probability")
+
+ggplot(lnewdat, aes(x = gpa, y = Probability, colour = Level)) +
+  geom_line() + facet_grid(pared ~ public, labeller="label_both")
+```
+
