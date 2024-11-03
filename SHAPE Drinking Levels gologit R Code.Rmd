@@ -85,7 +85,7 @@ exp_confint<-exp(confint)
 exp_confint
 ```
 
-Correlation Plots <https://stackoverflow.com/questions/52554336/plot-the-equivalent-of-correlation-matrix-for-factors-categorical-data-and-mi>
+Correlation Plots
 
 ```{r}
 
