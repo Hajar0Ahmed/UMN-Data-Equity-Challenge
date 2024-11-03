@@ -1,0 +1,98 @@
+---
+title: "ORDINAL LOGISTIC REGRESSION FOR PUBH DATA EQUITY CHALLENGE"
+author: "Hajar Ahmed"
+date: "2024-10-29"
+output: html_document
+---
+
+```{r}
+#Load Data:
+dat <- read.csv(file.choose())
+
+dat[!is.na(dat$Drinking_Level),]
+
+
+##Install and import packages:
+
+#install.packages("MASS")
+#install.packages("brant")
+#install.packages("car")
+#install.packages("VGAM")
+
+library(MASS)
+library(brant)
+library(car)
+library(VGAM)
+
+```
+
+According to the CDC, the threshold for excessive drinking is different for both men and women. For a woman, 4 or more drinks constitutes excessive drinking, whereas for men that number is 5. For our response variable, we will classify respondants to the SHAPE questionnaire as non-drinker, a moderate drinker, and an excessive drinker. This gives use three levels to use in our ordinal logistic regression.
+
+Explanatory variables we will be studying include...
+
+citation: stats.oarc.ucla
+
+```{r}
+#Assess the Factors that are to be utilized for the model
+lapply(dat[, c("Categorized_Gender","Categorized_Sexuality", "Education_Status")], table)
+```
+
+```{r}
+#Create the model:
+
+#Ordinal Logistic Regression model
+dat$Drinking_Level <- factor(dat$Drinking_Level, levels = c("1", "2", "3"), ordered = TRUE)
+m1 <- polr(Drinking_Level ~ Categorized_Gender + Categorized_Sexuality+ Education_Status, data = dat, Hess = TRUE)
+
+
+#Generalized Ordinal Logistic Regression model and summary:
+m<- vglm(Drinking_Level ~ Categorized_Gender + Categorized_Sexuality +Education_Status, family=cumulative(parallel=FALSE),data=dat)
+
+summary(m)
+
+```
+
+```{r}
+# Check multicollinearity assumption of the Ordinal Logistic model:
+vif(m1)
+```
+
+```{r}
+##Check the proportional odds assumption of the Ordinal Logistic model:
+brant::brant(m1)
+
+#if any factor has a probability< .05 they fail to pass the assumption
+#Therefore we use the generalized Ordinal Logistic model instead.
+
+```
+
+```{r}
+#odds coeficcients of the Generalized Ordered Logistic Model
+exp(coef(m))
+
+#Example Interpretation of generalized ordered logistic model:
+#A Male is 19% less likley than a woman to to go from nondrinking to moderate drinking
+
+```
+
+```{r}
+#Calculating a Confidence intreval for each odds Coeficcient:
+
+confint <- confint(m,level=0.95)
+exp_confint<-exp(confint)
+exp_confint
+```
+
+Correlation Plots <https://stackoverflow.com/questions/52554336/plot-the-equivalent-of-correlation-matrix-for-factors-categorical-data-and-mi>
+
+```{r}
+
+#install.packages("ggcorrplot")
+library(ggcorrplot)
+library(dplyr)
+df=c(dat$Categorized_Sexuality)
+model.matrix(Drinking_Level~Categorized_Sexuality+Categorized_Gender, data=dat) %>% 
+  cor(use="pairwise.complete.obs") %>% 
+  ggcorrplot(show.diag=FALSE, type="lower", lab=TRUE, lab_size=2)
+
+```
