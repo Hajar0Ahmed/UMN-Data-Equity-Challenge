@@ -5,11 +5,13 @@ date: "2024-10-29"
 output: html_document
 ---
 
-```{r}
+```{r setup, include=FALSE}
 #Load Data:
-dat <- read.csv(file.choose())
 
-dat[!is.na(dat$Drinking_Level),]
+dat <- read.csv(file.choose())
+simplifieddat<-read.csv(file.choose())#
+
+#dat[!is.na(dat$Drinking_Level, ),]
 
 
 ##Install and import packages:
@@ -28,7 +30,7 @@ library(VGAM)
 
 According to the CDC, the threshold for excessive drinking is different for both men and women. For a woman, 4 or more drinks constitutes excessive drinking, whereas for men that number is 5. For our response variable, we will classify respondants to the SHAPE questionnaire as non-drinker, a moderate drinker, and an excessive drinker. This gives use three levels to use in our ordinal logistic regression.
 
-Explanatory variables we will be studying include...
+Explanatory variables we will be studying include Gender, Sexuality, and Educational Status
 
 citation: stats.oarc.ucla
 
@@ -90,9 +92,9 @@ Correlation Plots <https://stackoverflow.com/questions/52554336/plot-the-equival
 #install.packages("ggcorrplot")
 library(ggcorrplot)
 library(dplyr)
-df=c(dat$Categorized_Sexuality)
-model.matrix(Drinking_Level~Categorized_Sexuality+Categorized_Gender, data=dat) %>% 
+colnames(simplifieddat)<-c("Sexuality","Gender","DrinkingLevel","Education Status:")
+model.matrix(DrinkingLevel~Sexuality+Gender, data=simplifieddat) %>% 
   cor(use="pairwise.complete.obs") %>% 
-  ggcorrplot(show.diag=FALSE, type="lower", lab=TRUE, lab_size=2)
+  ggcorrplot(show.diag=FALSE, type="lower", lab=TRUE, lab_size=3,colors=c("red","yellow","green"))
 
 ```
